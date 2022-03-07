@@ -6,6 +6,9 @@
 	import { Token } from '../lib/Token';
 
 	const operation = new Operation();
+	for (const key of '(1345679+87646)*64646'.split('')) {
+		operation.handle_key(key);
+	}
 
 	function handleKeyPress(e: KeyboardEvent & { currentTarget: EventTarget & HTMLDivElement }) {
 		const { key } = e;
@@ -18,50 +21,59 @@
 	) {
 		const index = parseInt(e.target.dataset['index']);
 		if (!index) return;
+	}
 
-		const { target } = e;
-		const rect = target.getBoundingClientRect();
-		const leftX = rect.left;
-		const rightX = leftX + rect.width;
+	function nearest(p: number, x: number, w: number) {
+		return Math.abs(p - x) < w / 2 ? -1 : 1;
+	}
 
-		const distL = Math.abs(leftX - e.x);
-		const distR = Math.abs(rightX - e.x);
-		if (distL > distR) {
+	function mouseDown(
+		e: MouseEvent & { currentTarget: EventTarget & HTMLDivElement; target: HTMLDivElement }
+	) {
+		let index = parseInt(e.target.dataset['index']);
+		if (!index) index = operation.tokens.length;
+
+		const rect = e.target.getBoundingClientRect();
+
+		if (nearest(e.x, rect.left, rect.width) > 0) {
 			operation.setCursor(index + 1);
 		} else {
 			operation.setCursor(index);
 		}
-	}
-
-	function mouseDown(
-		e: MouseEvent & { currentTarget: EventTarget & HTMLSpanElement; target: HTMLSpanElement }
-	) {
-		const index = parseInt(e.target.dataset['index']);
-		if (!index) return;
 
 		operation.setSelection(index, index);
 	}
 
 	function mouseMove(
-		e: MouseEvent & { currentTarget: EventTarget & HTMLSpanElement; target: HTMLSpanElement }
+		e: MouseEvent & { currentTarget: EventTarget & HTMLDivElement; target: HTMLDivElement }
 	) {
+		if (!e.target.dataset['index']) return;
 		const index = parseInt(e.target.dataset['index']);
-		if (!index) return;
 
 		if (e.buttons !== 1) return;
 
-		operation.setSelection(operation.selection.start, index);
+		const rect = e.target.getBoundingClientRect();
+
+		if (nearest(e.x, rect.left, rect.width) > 0) {
+			operation.setSelection(operation.selection.start, index + 1);
+			operation.setCursor(index + 1, true);
+		} else {
+			operation.setSelection(operation.selection.start, index);
+			operation.setCursor(index, true);
+		}
+		console.log(operation.selection, index);
 	}
 </script>
 
 <!-- {#each operations as operation} -->
-
+<h1 class="text-4xl">TEST</h1>
 <div
 	on:select={console.log}
 	on:keydown={handleKeyPress}
+	on:mousedown={mouseDown}
 	on:focus={() => $operation.setFocus(true)}
 	on:blur={() => $operation.setFocus(false)}
-	class="operation flex items-center px-4 py-4 w-full bg-slate-50 text-2xl select-none cursor-text"
+	class="operation flex items-center px-4 py-4 w-full bg-slate-50 text-2xl font-mono select-none cursor-text"
 	tabindex="0"
 >
 	{#if 0 === $operation.cursor_position && $operation.active && $operation.selection.start === $operation.selection.end}
@@ -73,9 +85,8 @@
 			style="color: {token.color()};"
 			class:selected={$operation.selection.start != $operation.selection.end &&
 				Math.min($operation.selection.start, $operation.selection.end) <= i &&
-				i <= Math.max($operation.selection.start, $operation.selection.end)}
+				i < Math.max($operation.selection.start, $operation.selection.end)}
 			on:mouseup={onMouseUp}
-			on:mousedown={mouseDown}
 			on:mousemove={mouseMove}
 			data-index={i}>{@html token.displayKey()}</span
 		><!-- 
