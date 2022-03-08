@@ -2,6 +2,7 @@ import { readable } from 'svelte/store';
 import { Readable } from './ReadableClass';
 import { Token } from './Token';
 
+type RGroups = (Token | RGroups)[];
 export class Operation extends Readable {
 	public tokens: Token[];
 	public active: boolean;
@@ -117,9 +118,51 @@ export class Operation extends Readable {
 		return true;
 	}
 
+	private isGroupNum(group: RGroups | null): group is Token[] {
+		if (group == null || !Array.isArray(group)) return false;
+		return !group.find((token) => (token as Token).type != 'number');
+	}
+	private getGroupAtDepth(groups: RGroups, depth: number) {
+		let lastGroup = groups;
+		for (let i = 0; i < depth; i++) {
+			if (!Array.isArray(lastGroup.at(-1)))
+				throw {
+					depth,
+					last: lastGroup.at(-1),
+					groups
+				};
+			lastGroup = lastGroup.at(-1) as RGroups;
+		}
+		return lastGroup;
+	}
+
 	calculate(): number {
+		const groups: RGroups = [];
+		let groupDepth = 0;
+		for (const token of this.tokens) {
+			const group = this.getGroupAtDepth(groups, groupDepth);
+			console.log(groups);
+			if (token.type === 'operator') {
+				if (!Array.isArray(group)) throw { group, token, groups };
+				group.push(token);
+			} else if (token.type === 'number') {
+				if (!this.isGroupNum(group.at(-1) as RGroups)) {
+					group.push([]);
+				}
+				(group.at(-1) as RGroups).push(token);
+			} else if (token.type === 'wrapper') {
+				if (token.key == '(') {
+					groupDepth++;
+					group.push([]);
+				} else {
+					groupDepth--;
+				}
+			}
+		}
+
 		return NaN;
 	}
+
 	setFocus(focused: boolean): any {
 		console.log('setFocus', focused);
 

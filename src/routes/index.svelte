@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { browser } from '$app/env';
+
 	import Carret from '$lib/components/Carret.svelte';
+	import Result from '$lib/components/Result.svelte';
 	import { onMount } from 'svelte';
 
 	import { Operation } from '../lib/Operation';
@@ -98,6 +101,11 @@
 		{/if}
 	{/each}
 </div>
+
+{#if browser}
+	<Result {operation} />
+{/if}
+
 <!-- {$operation} -->
 <!--  
 <br />
