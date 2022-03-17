@@ -35,9 +35,25 @@ export class Operation extends Readable {
 		this.__dispatch();
 	}
 
+	private findNext(dir: -1 | 1): number {
+		// TODO: make this work right
+		const startToken = this.tokens[this.cursor_position + dir];
+		for (let i = this.cursor_position + dir; i >= 0 && i < this.tokens.length; i += dir) {
+			const token = this.tokens[i];
+			if (token.type != startToken.type) {
+				return dir === -1 ? i + 1 : i;
+			}
+		}
+		return 0;
+	}
+
 	handle_key(key: string, shift = false, ctrl = false): boolean {
 		if (key == 'Backspace') {
-			if (this.selection.start != this.selection.end) {
+			if (ctrl) {
+				const start = this.findNext(-1);
+				this.tokens.splice(start, this.cursor_position - start);
+				this.cursor_position = start;
+			} else if (this.selection.start != this.selection.end) {
 				const min = Math.min(this.selection.end, this.selection.start);
 				const max = Math.max(this.selection.end, this.selection.start);
 				this.tokens.splice(min, max - min);
@@ -49,7 +65,10 @@ export class Operation extends Readable {
 				this.cursor_position--;
 			}
 		} else if (key == 'Delete') {
-			if (this.selection.start != this.selection.end) {
+			if (ctrl) {
+				const end = this.findNext(1);
+				this.tokens.splice(this.cursor_position, end - this.cursor_position);
+			} else if (this.selection.start != this.selection.end) {
 				const min = Math.min(this.selection.end, this.selection.start);
 				const max = Math.max(this.selection.end, this.selection.start);
 				this.tokens.splice(min, max - min);
@@ -61,17 +80,7 @@ export class Operation extends Readable {
 			}
 		} else if (key == 'ArrowLeft') {
 			if (ctrl) {
-				findNext: {
-					const startToken = this.tokens[this.cursor_position - 1];
-					for (let i = this.cursor_position - 1; i > 0; i--) {
-						const token = this.tokens[i];
-						if (token.type != startToken.type) {
-							this._setCursor(i + 1);
-							break findNext;
-						}
-					}
-					this._setCursor(0);
-				}
+				this._setCursor(this.findNext(-1));
 			} else {
 				this._setCursor(
 					(this.cursor_position + this.tokens.length - 1 + 1) % (this.tokens.length + 1)
@@ -83,17 +92,7 @@ export class Operation extends Readable {
 			this._setCursor(this.tokens.length);
 		} else if (key == 'ArrowRight') {
 			if (ctrl) {
-				findNext: {
-					const startToken = this.tokens[this.cursor_position];
-					for (let i = this.cursor_position; i < this.tokens.length; i++) {
-						const token = this.tokens[i];
-						if (token.type != startToken.type) {
-							this._setCursor(i);
-							break findNext;
-						}
-					}
-					this._setCursor(this.tokens.length);
-				}
+				this._setCursor(this.findNext(1));
 			} else {
 				this._setCursor(
 					(this.cursor_position + this.tokens.length + 1 + 1) % (this.tokens.length + 1)

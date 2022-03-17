@@ -1,4 +1,4 @@
-<span class="carret h-[1em] bg-black w-[2px] ml-[-1px] inline-block pulse" />
+<span class="carret h-[1em] bg-green-500 w-[2px] ml-[-1px] inline-block pulse" />
 
 <style>
 	@keyframes blink {
