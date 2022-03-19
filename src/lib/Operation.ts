@@ -159,7 +159,72 @@ export class Operation extends Readable {
 			}
 		}
 
-		return NaN;
+		const result = this._calculate(groups);
+
+		return result || NaN;
+	}
+
+	private _calculate(groups: RGroups): number {
+		if (this.isGroupNum(groups)) {
+			return parseFloat(groups.reduce((a, b) => a + b.key, ''));
+		} else {
+			const compiled = [];
+			for (const group of groups) {
+				if (Array.isArray(group)) {
+					const compiledGroup = this._calculate(group);
+					compiled.push(compiledGroup);
+				} else if (group.type === 'operator') {
+					compiled.push(group.key);
+				}
+			}
+
+			if (compiled.length == 1) return compiled[0];
+			else if (compiled.length == 2) return NaN;
+
+			// BIMDAS
+
+			// Do multiplications
+			if (compiled.includes('*')) {
+				let i = compiled.indexOf('*');
+				while (i != -1) {
+					compiled[i - 1] = compiled[i - 1] * compiled[i + 1];
+					compiled.splice(i, 2);
+					i = compiled.indexOf('*');
+				}
+			}
+			// Do divisions
+			if (compiled.includes('/')) {
+				let i = compiled.indexOf('/');
+				while (i != -1) {
+					compiled[i - 1] = compiled[i - 1] / compiled[i + 1];
+					compiled.splice(i, 2);
+					i = compiled.indexOf('/');
+				}
+			}
+
+			// Do additions
+			if (compiled.includes('+')) {
+				let i = compiled.indexOf('+');
+				while (i != -1) {
+					compiled[i - 1] = compiled[i - 1] + compiled[i + 1];
+					compiled.splice(i, 2);
+					i = compiled.indexOf('+');
+				}
+			}
+
+			// Do subtractions
+			if (compiled.includes('-')) {
+				let i = compiled.indexOf('-');
+				while (i != -1) {
+					compiled[i - 1] = compiled[i - 1] - compiled[i + 1];
+					compiled.splice(i, 2);
+					i = compiled.indexOf('-');
+				}
+			}
+
+			console.log(compiled);
+			return compiled[0];
+		}
 	}
 
 	setFocus(focused: boolean): any {

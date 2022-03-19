@@ -100,11 +100,10 @@
 			</span>
 		{/if}
 	{/each}
+	{#if browser}
+		<Result {operation} />
+	{/if}
 </div>
-
-{#if browser}
-	<Result {operation} />
-{/if}
 
 <!-- {$operation} -->
 <!--  
