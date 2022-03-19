@@ -75,7 +75,7 @@ export class Operation extends Readable {
 				console.log(min, max, max - min);
 
 				this.cursor_position = min;
-			} else if (this.cursor_position > 0) {
+			} else if (this.cursor_position >= 0) {
 				this.tokens.splice(this.cursor_position, 1);
 			}
 		} else if (key == 'ArrowLeft') {
