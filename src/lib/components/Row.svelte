@@ -80,7 +80,7 @@
 	on:focus={() => $operation.setFocus(true)}
 	on:blur={() => $operation.setFocus(false)}
 	bind:this={operation.elem}
-	class="operation flex items-center px-4 py-4 w-full bg-slate-50 text-2xl font-mono select-none cursor-text"
+	class="operation flex items-center px-4 py-4 w-full bg-slate-50 border-b border-b-slate-200 text-2xl font-mono select-none cursor-text"
 	tabindex="0"
 >
 	{#if 0 === $operation.cursor_position && $operation.active && $operation.selection.start === $operation.selection.end}
