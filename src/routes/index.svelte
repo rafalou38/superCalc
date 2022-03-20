@@ -13,12 +13,14 @@
 	$operations = [new Operation('(1345679+87646)*64646'.split(''))];
 
 	function validate(i: number) {
-		$operations = [...$operations, new Operation()];
+		const result = $operations.at(-1).calculate();
+		if (isNaN(result)) {
+			$operations = [...$operations, new Operation()];
+		} else {
+			$operations = [...$operations, new Operation(result.toString().split(''))];
+		}
 	}
 </script>
-
-<!-- {#each operations as operation} -->
-<h1 class="text-4xl">TEST</h1>
 
 {#each $operations as operation, i}
 	<Row {operation} on:validate={validate.bind(null, i)} />

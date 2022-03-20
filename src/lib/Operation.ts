@@ -14,7 +14,7 @@ export class Operation extends Readable {
 	constructor(keys: string[] = []) {
 		super();
 		this.tokens = keys.map((key) => new Token(key));
-		this.cursor_position = 0;
+		this.cursor_position = this.tokens.length;
 		this.selection = { start: 0, end: 0 };
 		this.active = false;
 		this.__dispatch();
