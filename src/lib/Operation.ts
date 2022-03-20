@@ -6,15 +6,17 @@ type RGroups = (Token | RGroups)[];
 export class Operation extends Readable {
 	public tokens: Token[];
 	public active: boolean;
+	public elem: HTMLElement;
 	cursor_position: number;
 	selection: { start: number; end: number };
 
-	constructor() {
+	constructor(keys: string[] = []) {
 		super();
-		this.tokens = [];
+		this.tokens = keys.map((key) => new Token(key));
 		this.cursor_position = 0;
 		this.selection = { start: 0, end: 0 };
 		this.active = false;
+		this.__dispatch();
 	}
 
 	setCursor(position: number, select = false): any {
@@ -140,7 +142,6 @@ export class Operation extends Readable {
 		let groupDepth = 0;
 		for (const token of this.tokens) {
 			const group = this.getGroupAtDepth(groups, groupDepth);
-			console.log(groups);
 			if (token.type === 'operator') {
 				if (!Array.isArray(group)) throw { group, token, groups };
 				group.push(token);
@@ -221,8 +222,6 @@ export class Operation extends Readable {
 					i = compiled.indexOf('-');
 				}
 			}
-
-			console.log(compiled);
 			return compiled[0];
 		}
 	}
