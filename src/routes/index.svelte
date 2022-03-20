@@ -9,16 +9,17 @@
 	import { Operation } from '../lib/Operation';
 	import { Token } from '../lib/Token';
 
-	let operations = [new Operation('(1345679+87646)*64646'.split(''))];
+	let { operations } = Operation;
+	$operations = [new Operation('(1345679+87646)*64646'.split(''))];
 
 	function validate(i: number) {
-		operations = [...operations, new Operation()];
+		$operations = [...$operations, new Operation()];
 	}
 </script>
 
 <!-- {#each operations as operation} -->
 <h1 class="text-4xl">TEST</h1>
 
-{#each operations as operation, i}
+{#each $operations as operation, i}
 	<Row {operation} on:validate={validate.bind(null, i)} />
 {/each}

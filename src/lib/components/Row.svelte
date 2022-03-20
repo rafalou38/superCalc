@@ -69,7 +69,7 @@
 	}
 
 	onMount(() => {
-		$operation.elem.focus();
+		$operation.setFocus(true);
 	});
 </script>
 

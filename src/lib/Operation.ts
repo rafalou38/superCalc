@@ -1,4 +1,4 @@
-import { readable } from 'svelte/store';
+import { readable, writable, type Writable } from 'svelte/store';
 import { Readable } from './ReadableClass';
 import { Token } from './Token';
 
@@ -7,6 +7,7 @@ export class Operation extends Readable {
 	public tokens: Token[];
 	public active: boolean;
 	public elem: HTMLElement;
+	static operations: Writable<Operation[]> = writable([]);
 	cursor_position: number;
 	selection: { start: number; end: number };
 
@@ -65,6 +66,15 @@ export class Operation extends Readable {
 			} else if (this.cursor_position > 0) {
 				this.tokens.splice(this.cursor_position - 1, 1);
 				this.cursor_position--;
+			} else {
+				// Delete operation
+				Operation.operations.update((ops) => {
+					if (ops.length == 1) return ops;
+					const index = ops.indexOf(this);
+					ops.splice(index, 1);
+					ops[index - 1].setFocus(true);
+					return ops;
+				});
 			}
 		} else if (key == 'Delete') {
 			if (ctrl) {
@@ -230,6 +240,9 @@ export class Operation extends Readable {
 		console.log('setFocus', focused);
 
 		this.active = focused;
+		if (focused) {
+			this.elem.focus();
+		}
 
 		this.__dispatch();
 	}
