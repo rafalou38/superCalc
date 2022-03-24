@@ -10,7 +10,7 @@
 	import { Token } from '../lib/Token';
 
 	let { operations } = Operation;
-	$operations = [new Operation('(1345679+87646)*64646'.split(''))];
+	$operations = [new Operation('123.32'.split(''))];
 
 	function validate(i: number) {
 		const result = $operations.at(-1).calculate();

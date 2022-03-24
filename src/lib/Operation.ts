@@ -131,7 +131,9 @@ export class Operation extends Readable {
 
 	private isGroupNum(group: RGroups | null): group is Token[] {
 		if (group == null || !Array.isArray(group)) return false;
-		return !group.find((token) => (token as Token).type != 'number');
+		return !group.find(
+			(token) => (token as Token).type != 'number' && (token as Token).type != 'coma'
+		);
 	}
 	private getGroupAtDepth(groups: RGroups, depth: number) {
 		let lastGroup = groups;
@@ -155,7 +157,7 @@ export class Operation extends Readable {
 			if (token.type === 'operator') {
 				if (!Array.isArray(group)) throw { group, token, groups };
 				group.push(token);
-			} else if (token.type === 'number') {
+			} else if (token.type === 'number' || token.type === 'coma') {
 				if (!this.isGroupNum(group.at(-1) as RGroups)) {
 					group.push([]);
 				}
