@@ -1,0 +1,17 @@
+{
+    "name": "super-calculator",
+    "short_name": "super-calc",
+    "description": "Text-based calculator.",
+    "start_url": "/",
+    "scope": "/",
+    "background_color": "#f8fafc",
+    "theme_color": "#f8fafc",
+    "icons": [
+        {
+            "src": "logo_512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "display": "minimal-ui"
+}
